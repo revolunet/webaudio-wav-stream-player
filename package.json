@@ -1,0 +1,26 @@
+{
+  "name": "webaudio-wav-stream-player",
+  "version": "1.0.0",
+  "description": "Instantly play wav streams in your browser using fetch streaming and web audio",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify -t babelify ./src > ./dist/index.js"
+  },
+  "keywords": [
+    "fetch",
+    "stream",
+    "webaudio",
+    "wav"
+  ],
+  "author": "Julien Bouquillon <julien@revolunet.com>",
+  "contributors": [
+    "Christoph Guttandin <chrisguttandin@gmail.com>"
+  ],
+  "license": "ISC",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.9.0",
+    "babelify": "^7.3.0",
+    "browserify": "^13.1.0"
+  }
+}
