@@ -2,6 +2,9 @@
 
 instantly play a remote wav stream using [fetch streaming API]() and [WebAudio]()
 
+![npm](https://img.shields.io/npm/v/webaudio-wav-stream-player.svg) ![license](https://img.shields.io/npm/l/webaudio-wav-stream-player.svg) ![github-issues](https://img.shields.io/github/issues/revolunet/webaudio-wav-stream-player.svg)
+
+
 ## Usage
 
 ```js
