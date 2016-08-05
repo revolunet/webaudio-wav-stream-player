@@ -14,55 +14,54 @@ const WavPlayer = () => {
 
         const context = new AudioContext();
 
-        return fetch(url)
-            .then((response) => {
-                const reader = response.body.getReader();
+        return fetch(url).then((response) => {
 
-                // This variable holds a possibly dangling byte.
-                var rest = null;
+            const reader = response.body.getReader();
 
-                const read = () => reader.read()
-                    .then(({ value, done }) => {
-                        if (hasCanceled_) {
-                          reader.cancel();
-                          context.close();
-                          return;
+            // This variable holds a possibly dangling byte.
+            var rest = null;
+
+            const read = () => reader.read().then(({ value, done }) => {
+                if (hasCanceled_) {
+                    reader.cancel();
+                    context.close();
+                    return;
+                }
+                if (value && value.buffer) {
+                    let buffer;
+
+                    if (rest !== null) {
+                        buffer = concat(rest, value.buffer);
+                    } else {
+                        buffer = value.buffer;
+                    }
+
+                    if (buffer.byteLength % 2 !== 0) {
+                        rest = buffer.slice(-2, -1);
+                        buffer = buffer.slice(0, -1);
+                    } else {
+                        rest = null;
+                    }
+
+                    context.decodeAudioData(wavify(buffer)).then((audioBuffer) => {
+                        audioStack.push(audioBuffer);
+                        if (audioStack.length) {
+                            scheduleBuffers();
                         }
-                        if (value && value.buffer) {
-                            let buffer;
-
-                            if (rest !== null) {
-                                buffer = concat(rest, value.buffer);
-                            } else {
-                                buffer = value.buffer;
-                            }
-
-                            if (buffer.byteLength % 2 !== 0) {
-                                rest = buffer.slice(-2, -1);
-                                buffer = buffer.slice(0, -1);
-                            } else {
-                                rest = null;
-                            }
-
-                            context.decodeAudioData(wavify(buffer))
-                                .then((audioBuffer) => {
-                                    audioStack.push(audioBuffer);
-
-                                    if (audioStack.length) {
-                                        scheduleBuffers();
-                                    }
-                                });
-                        }
-
-                        if (done) {
-                            return;
-                        }
-
-                        read();
                     });
+                }
 
+                if (done) {
+                    return;
+                }
+
+                // continue reading
                 read();
             });
+
+            // start reading
+            read();
+        });
 
         const scheduleBuffers = () => {
             while (audioStack.length) {
@@ -82,13 +81,12 @@ const WavPlayer = () => {
                 nextTime += source.buffer.duration; // Make the next buffer wait the length of the last buffer before being played
             }
         }
-        
     }
 
     return {
       play: url => play(url),
       stop: () => hasCanceled_ = true
-    }
+  }
 }
 
 export default WavPlayer;
