@@ -1,3 +1,4 @@
+import concat from './concat';
 
 // Write a proper WAVE header for the given buffer.
 const wavify = (data) => {
