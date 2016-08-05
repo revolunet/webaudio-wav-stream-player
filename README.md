@@ -18,12 +18,19 @@ player.stop();
 ## FAQ
 
  - you need CORS on the server streaming .wav
- - or you can proxy the stream with a mitm express server :
+
+### Example express proxy to add CORS header to some remote uri
 
 ```js
 // proxy /proxy/http://path/to/stream.wav
 
 app.get('/proxy/*', function (req, res, next) {
-  req.pipe(request.get(req.params[0])).pipe(res);
+  let remoteReq = request.get(req.params[0]);
+  req.on("close", function() {
+      remoteReq.abort();
+      res.end();
+  });
+  req.pipe(remoteReq).pipe(res);
 });
+
 ```
