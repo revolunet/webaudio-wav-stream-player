@@ -14,6 +14,25 @@ const WavPlayer = () => {
 
         const context = new AudioContext();
 
+        const scheduleBuffers = () => {
+            while (audioStack.length) {
+                const source = context.createBufferSource();
+
+                source.buffer = audioStack.shift();
+
+                source.connect(context.destination);
+
+                if (nextTime == 0) {
+                    nextTime = context.currentTime + 0.3;  /// add 50ms latency to work well across systems - tune this if you like
+                }
+
+                source.start(nextTime);
+                source.stop(nextTime + source.buffer.duration);
+
+                nextTime += source.buffer.duration; // Make the next buffer wait the length of the last buffer before being played
+            }
+        }
+
         return fetch(url).then((response) => {
 
             const reader = response.body.getReader();
@@ -63,24 +82,6 @@ const WavPlayer = () => {
             read();
         });
 
-        const scheduleBuffers = () => {
-            while (audioStack.length) {
-                const source = context.createBufferSource();
-
-                source.buffer = audioStack.shift();
-
-                source.connect(context.destination);
-
-                if (nextTime == 0) {
-                    nextTime = context.currentTime + 0.3;  /// add 50ms latency to work well across systems - tune this if you like
-                }
-
-                source.start(nextTime);
-                source.stop(nextTime + source.buffer.duration);
-
-                nextTime += source.buffer.duration; // Make the next buffer wait the length of the last buffer before being played
-            }
-        }
     }
 
     return {
