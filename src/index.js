@@ -1,3 +1,4 @@
-import Player from './Player';
+import WavPlayer from './WavPlayer';
 
-export default Player;
+export default WavPlayer;
+module.exports = WavPlayer;

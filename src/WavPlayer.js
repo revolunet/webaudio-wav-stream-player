@@ -1,8 +1,7 @@
-
 import wavify from './wavify';
 import concat from './concat';
 
-const Player = () => {
+const WavPlayer = () => {
     let hasCanceled_ = false;
 
     const play = url => {
@@ -92,5 +91,4 @@ const Player = () => {
     }
 }
 
-export default Player;
-
+export default WavPlayer;

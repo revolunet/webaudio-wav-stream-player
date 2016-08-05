@@ -6,7 +6,7 @@
   "repository": "revolunet/webaudio-wav-stream-player",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify -t babelify ./src > ./dist/index.js"
+    "build": "browserify -d -s WavPlayer -t babelify ./src/index.js -o ./dist/index.js"
   },
   "keywords": [
     "fetch",

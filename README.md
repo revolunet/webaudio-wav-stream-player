@@ -8,9 +8,9 @@ instantly play a remote wav stream using [fetch streaming API]() and [WebAudio](
 ## Usage
 
 ```js
-import Player from 'webaudio-wav-stream-player';
+import WavPlayer from 'webaudio-wav-stream-player';
 
-let player = new Player();
+let player = new WavPlayer();
 player.play('http//domain/path/to/stream.wav');
 player.stop();
 ```
