@@ -15,11 +15,12 @@ const WavPlayer = () => {
         const context = new AudioContext();
 
         const scheduleBuffers = () => {
-            while (audioStack.length) {
+            while (audioStack.length > 0 && audioStack[0].buffer !== undefined) {
                 const source = context.createBufferSource();
 
-                source.buffer = audioStack.shift();
+                const segment = audioStack.shift();
 
+                source.buffer = segment.buffer;
                 source.connect(context.destination);
 
                 if (nextTime == 0) {
@@ -50,7 +51,8 @@ const WavPlayer = () => {
                     return;
                 }
                 if (value && value.buffer) {
-                    let buffer;
+                    let buffer,
+                        segment;
 
                     if (rest !== null) {
                         buffer = concat(rest, value.buffer);
@@ -87,11 +89,14 @@ const WavPlayer = () => {
                         rest = null;
                     }
 
+                    segment = {};
+
+                    audioStack.push(segment);
+
                     context.decodeAudioData(wavify(buffer, numberOfChannels, sampleRate)).then((audioBuffer) => {
-                        audioStack.push(audioBuffer);
-                        if (audioStack.length) {
-                            scheduleBuffers();
-                        }
+                        segment.buffer = audioBuffer;
+
+                        scheduleBuffers();
                     });
                 }
 
