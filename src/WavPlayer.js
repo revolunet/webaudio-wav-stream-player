@@ -40,6 +40,9 @@ const WavPlayer = () => {
             // This variable holds a possibly dangling byte.
             var rest = null;
 
+            let isFirstBuffer = true;
+            let numberOfChannels, sampleRate;
+
             const read = () => reader.read().then(({ value, done }) => {
                 if (hasCanceled_) {
                     reader.cancel();
@@ -55,6 +58,28 @@ const WavPlayer = () => {
                         buffer = value.buffer;
                     }
 
+                    // Make sure that the first buffer is lager then 44 bytes.
+                    if (isFirstBuffer && buffer.byteLength < 44) {
+                        rest = buffer;
+
+                        read();
+
+                        return;
+                    }
+
+                    // If the header has arrived try to derive the numberOfChannels and the
+                    // sampleRate of the incoming file.
+                    if (isFirstBuffer) {
+                        isFirstBuffer = false;
+
+                        const dataView = new DataView(buffer);
+
+                        numberOfChannels = dataView.getUint16(22, true);
+                        sampleRate = dataView.getUint32(24, true);
+
+                        buffer = buffer.slice(44);
+                    }
+
                     if (buffer.byteLength % 2 !== 0) {
                         rest = buffer.slice(-2, -1);
                         buffer = buffer.slice(0, -1);
@@ -62,7 +87,7 @@ const WavPlayer = () => {
                         rest = null;
                     }
 
-                    context.decodeAudioData(wavify(buffer)).then((audioBuffer) => {
+                    context.decodeAudioData(wavify(buffer, numberOfChannels, sampleRate)).then((audioBuffer) => {
                         audioStack.push(audioBuffer);
                         if (audioStack.length) {
                             scheduleBuffers();
