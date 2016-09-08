@@ -136,9 +136,9 @@ const WavPlayer = () => {
     }
 
     return {
-      play: url => play(url),
-      stop: () => hasCanceled_ = true
-  }
+        play: url => play(url),
+        stop: () => hasCanceled_ = true
+    }
 }
 
 export default WavPlayer;
