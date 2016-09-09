@@ -17,6 +17,12 @@ const WavPlayer = () => {
         let scheduleBuffersTimeoutId = null;
 
         const scheduleBuffers = () => {
+            if (hasCanceled_) {
+                scheduleBuffersTimeoutId = null;
+
+                return;
+            }
+
             while (audioStack.length > 0 && audioStack[0].buffer !== undefined && nextTime < context.currentTime + 2) {
                 const currentTime = context.currentTime;
 
@@ -46,11 +52,7 @@ const WavPlayer = () => {
                 nextTime += duration; // Make the next buffer wait the length of the last buffer before being played
             }
 
-            if (hasCanceled_) {
-                scheduleBuffersTimeoutId = null;
-            } else {
-                scheduleBuffersTimeoutId = setTimeout(() => scheduleBuffers(), 500);
-            }
+            scheduleBuffersTimeoutId = setTimeout(() => scheduleBuffers(), 500);
         }
 
         return fetch(url).then((response) => {
@@ -66,7 +68,7 @@ const WavPlayer = () => {
             const read = () => reader.read().then(({ value, done }) => {
                 if (hasCanceled_) {
                     reader.cancel();
-                    context.close();
+
                     return;
                 }
                 if (value && value.buffer) {
