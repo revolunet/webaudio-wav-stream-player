@@ -1,0 +1,20 @@
+<h3>webaudio-wav-stream-player example</h3>
+
+<button onclick="play()">play</button>
+<button onclick="stop()">stop</button>
+
+<script src="./dist/index.js"></script>
+<script>
+
+let player = new WavPlayer();
+
+function play() {
+  player.play('./example.wav');
+}
+function stop() {
+  player.stop();
+}
+
+</script>
+
+
