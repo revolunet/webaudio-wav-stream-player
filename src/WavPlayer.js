@@ -2,6 +2,8 @@ import wavify from './wavify';
 import concat from './concat';
 
 const WavPlayer = () => {
+    let context;
+
     let hasCanceled_ = false;
 
     const play = url => {
@@ -12,7 +14,7 @@ const WavPlayer = () => {
 
         hasCanceled_ = false;
 
-        const context = new AudioContext();
+        context = new AudioContext();
 
         let scheduleBuffersTimeoutId = null;
 
@@ -139,7 +141,10 @@ const WavPlayer = () => {
 
     return {
         play: url => play(url),
-        stop: () => hasCanceled_ = true
+        stop: () => {
+            hasCanceled_ = true;
+            context.close();
+        }
     }
 }
 
