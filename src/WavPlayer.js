@@ -14,22 +14,42 @@ const WavPlayer = () => {
 
         const context = new AudioContext();
 
+        let scheduleBuffersTimeoutId = null;
+
         const scheduleBuffers = () => {
-            while (audioStack.length) {
+            while (audioStack.length > 0 && audioStack[0].buffer !== undefined && nextTime < context.currentTime + 2) {
+                const currentTime = context.currentTime;
+
                 const source = context.createBufferSource();
 
-                source.buffer = audioStack.shift();
+                const segment = audioStack.shift();
 
+                source.buffer = segment.buffer;
                 source.connect(context.destination);
 
                 if (nextTime == 0) {
-                    nextTime = context.currentTime + 0.3;  /// add 50ms latency to work well across systems - tune this if you like
+                    nextTime = currentTime + 0.3;  /// add 300ms latency to work well across systems - tune this if you like
                 }
 
-                source.start(nextTime);
-                source.stop(nextTime + source.buffer.duration);
+                let duration = source.buffer.duration;
+                let offset = 0;
 
-                nextTime += source.buffer.duration; // Make the next buffer wait the length of the last buffer before being played
+                if (currentTime > nextTime) {
+                    offset = currentTime - nextTime;
+                    nextTime = currentTime;
+                    duration = duration - offset;
+                }
+
+                source.start(nextTime, offset);
+                source.stop(nextTime + duration);
+
+                nextTime += duration; // Make the next buffer wait the length of the last buffer before being played
+            }
+
+            if (hasCanceled_) {
+                scheduleBuffersTimeoutId = null;
+            } else {
+                scheduleBuffersTimeoutId = setTimeout(() => scheduleBuffers(), 500);
             }
         }
 
@@ -40,6 +60,9 @@ const WavPlayer = () => {
             // This variable holds a possibly dangling byte.
             var rest = null;
 
+            let isFirstBuffer = true;
+            let numberOfChannels, sampleRate;
+
             const read = () => reader.read().then(({ value, done }) => {
                 if (hasCanceled_) {
                     reader.cancel();
@@ -47,12 +70,35 @@ const WavPlayer = () => {
                     return;
                 }
                 if (value && value.buffer) {
-                    let buffer;
+                    let buffer,
+                        segment;
 
                     if (rest !== null) {
                         buffer = concat(rest, value.buffer);
                     } else {
                         buffer = value.buffer;
+                    }
+
+                    // Make sure that the first buffer is lager then 44 bytes.
+                    if (isFirstBuffer && buffer.byteLength < 44) {
+                        rest = buffer;
+
+                        read();
+
+                        return;
+                    }
+
+                    // If the header has arrived try to derive the numberOfChannels and the
+                    // sampleRate of the incoming file.
+                    if (isFirstBuffer) {
+                        isFirstBuffer = false;
+
+                        const dataView = new DataView(buffer);
+
+                        numberOfChannels = dataView.getUint16(22, true);
+                        sampleRate = dataView.getUint32(24, true);
+
+                        buffer = buffer.slice(44);
                     }
 
                     if (buffer.byteLength % 2 !== 0) {
@@ -62,9 +108,14 @@ const WavPlayer = () => {
                         rest = null;
                     }
 
-                    context.decodeAudioData(wavify(buffer)).then((audioBuffer) => {
-                        audioStack.push(audioBuffer);
-                        if (audioStack.length) {
+                    segment = {};
+
+                    audioStack.push(segment);
+
+                    context.decodeAudioData(wavify(buffer, numberOfChannels, sampleRate)).then((audioBuffer) => {
+                        segment.buffer = audioBuffer;
+
+                        if (scheduleBuffersTimeoutId === null) {
                             scheduleBuffers();
                         }
                     });
@@ -85,9 +136,9 @@ const WavPlayer = () => {
     }
 
     return {
-      play: url => play(url),
-      stop: () => hasCanceled_ = true
-  }
+        play: url => play(url),
+        stop: () => hasCanceled_ = true
+    }
 }
 
 export default WavPlayer;

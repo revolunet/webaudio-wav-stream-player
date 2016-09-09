@@ -1,7 +1,7 @@
 import concat from './concat';
 
 // Write a proper WAVE header for the given buffer.
-const wavify = (data) => {
+const wavify = (data, numberOfChannels, sampleRate) => {
     const header = new ArrayBuffer(44);
 
     var d = new  DataView(header);
@@ -24,10 +24,10 @@ const wavify = (data) => {
 
     d.setUint32(16, 16, true);
     d.setUint16(20, 1, true);
-    d.setUint16(22, 1, true);
-    d.setUint32(24, 11025, true);
-    d.setUint32(28, 11025 * 1 * 2);
-    d.setUint16(32, 1 * 2);
+    d.setUint16(22, numberOfChannels, true);
+    d.setUint32(24, sampleRate, true);
+    d.setUint32(28, sampleRate * 1 * 2);
+    d.setUint16(32, numberOfChannels * 2);
     d.setUint16(34, 16, true);
 
     d.setUint8(36, 'd'.charCodeAt(0));
