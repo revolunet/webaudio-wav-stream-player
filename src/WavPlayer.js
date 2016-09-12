@@ -2,6 +2,8 @@ import wavify from './wavify';
 import concat from './concat';
 
 const WavPlayer = () => {
+    let context;
+
     let hasCanceled_ = false;
 
     const play = url => {
@@ -12,11 +14,17 @@ const WavPlayer = () => {
 
         hasCanceled_ = false;
 
-        const context = new AudioContext();
+        context = new AudioContext();
 
         let scheduleBuffersTimeoutId = null;
 
         const scheduleBuffers = () => {
+            if (hasCanceled_) {
+                scheduleBuffersTimeoutId = null;
+
+                return;
+            }
+
             while (audioStack.length > 0 && audioStack[0].buffer !== undefined && nextTime < context.currentTime + 2) {
                 const currentTime = context.currentTime;
 
@@ -46,11 +54,7 @@ const WavPlayer = () => {
                 nextTime += duration; // Make the next buffer wait the length of the last buffer before being played
             }
 
-            if (hasCanceled_) {
-                scheduleBuffersTimeoutId = null;
-            } else {
-                scheduleBuffersTimeoutId = setTimeout(() => scheduleBuffers(), 500);
-            }
+            scheduleBuffersTimeoutId = setTimeout(() => scheduleBuffers(), 500);
         }
 
         return fetch(url).then((response) => {
@@ -66,7 +70,7 @@ const WavPlayer = () => {
             const read = () => reader.read().then(({ value, done }) => {
                 if (hasCanceled_) {
                     reader.cancel();
-                    context.close();
+
                     return;
                 }
                 if (value && value.buffer) {
@@ -137,7 +141,10 @@ const WavPlayer = () => {
 
     return {
         play: url => play(url),
-        stop: () => hasCanceled_ = true
+        stop: () => {
+            hasCanceled_ = true;
+            context.close();
+        }
     }
 }
 
