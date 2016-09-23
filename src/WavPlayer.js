@@ -84,7 +84,7 @@ const WavPlayer = () => {
                     }
 
                     // Make sure that the first buffer is lager then 44 bytes.
-                    if (isFirstBuffer && buffer.byteLength < 44) {
+                    if (isFirstBuffer && buffer.byteLength <= 44) {
                         rest = buffer;
 
                         read();
