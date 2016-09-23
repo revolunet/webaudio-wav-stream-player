@@ -1,6 +1,44 @@
 import wavify from './wavify';
 import concat from './concat';
 
+const pad = (buffer) => {
+    const currentSample = new Float32Array(1);
+
+    buffer.copyFromChannel(currentSample, 0, 0);
+
+    let wasPositive = (currentSample[0] > 0);
+
+    for (let i = 0; i < buffer.length; i += 1) {
+        buffer.copyFromChannel(currentSample, 0, i);
+
+        if ((wasPositive && currentSample[0] < 0) ||
+                (!wasPositive && currentSample[0] > 0)) {
+            break;
+        }
+
+        currentSample[0] = 0;
+        buffer.copyToChannel(currentSample, 0, i);
+    }
+
+    buffer.copyFromChannel(currentSample, 0, buffer.length - 1);
+
+    wasPositive = (currentSample[0] > 0);
+
+    for (let i = buffer.length - 1; i > 0; i -= 1) {
+        buffer.copyFromChannel(currentSample, 0, i);
+
+        if ((wasPositive && currentSample[0] < 0) ||
+                (!wasPositive && currentSample[0] > 0)) {
+            break;
+        }
+
+        currentSample[0] = 0;
+        buffer.copyToChannel(currentSample, 0, i);
+    }
+
+    return buffer;
+};
+
 const WavPlayer = () => {
     let context;
 
@@ -32,7 +70,7 @@ const WavPlayer = () => {
 
                 const segment = audioStack.shift();
 
-                source.buffer = segment.buffer;
+                source.buffer = pad(segment.buffer);
                 source.connect(context.destination);
 
                 if (nextTime == 0) {
@@ -84,7 +122,7 @@ const WavPlayer = () => {
                     }
 
                     // Make sure that the first buffer is lager then 44 bytes.
-                    if (isFirstBuffer && buffer.byteLength < 44) {
+                    if (isFirstBuffer && buffer.byteLength <= 44) {
                         rest = buffer;
 
                         read();
