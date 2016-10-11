@@ -35,3 +35,5 @@ app.get('/proxy/*', function (req, res, next) {
 });
 
 ```
+
+Inspiration : http://stackoverflow.com/questions/38589614/webaudio-streaming-with-fetch-domexception-unable-to-decode-audio-data/39988015#39988015
