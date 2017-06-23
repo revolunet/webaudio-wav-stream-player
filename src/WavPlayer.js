@@ -181,7 +181,9 @@ const WavPlayer = () => {
         play: url => play(url),
         stop: () => {
             hasCanceled_ = true;
-            context.close();
+            if (context) {
+                context.close();
+            }
         }
     }
 }
