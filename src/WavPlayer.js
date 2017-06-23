@@ -74,7 +74,7 @@ const WavPlayer = () => {
                 source.connect(context.destination);
 
                 if (nextTime == 0) {
-                    nextTime = currentTime + 0.7;  /// add 700ms latency to work well across systems - tune this if you like
+                    nextTime = currentTime + 0.2;  /// add 700ms latency to work well across systems - tune this if you like
                 }
 
                 let duration = source.buffer.duration;
