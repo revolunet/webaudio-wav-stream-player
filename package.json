@@ -1,6 +1,6 @@
 {
   "name": "webaudio-wav-stream-player",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Instantly play wav streams in your browser using fetch streaming and web audio",
   "main": "dist/index.js",
   "repository": "revolunet/webaudio-wav-stream-player",
