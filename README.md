@@ -1,6 +1,6 @@
 # webaudio-wav-stream-player
 
-No latency wav stream player using [fetch streaming API]() and [WebAudio]() (Chrome-only)
+No latency wav stream player using browser [fetch streaming API](https://streams.spec.whatwg.org/#rs) and [WebAudio](https://developer.mozilla.org/fr/docs/Web/API/Web_Audio_API) ([Chrome-only ATM](https://developer.mozilla.org/fr/docs/Web/API/Fetch_API#Compatibilité_des_navigateurs))
 
 ![npm](https://img.shields.io/npm/v/webaudio-wav-stream-player.svg) ![license](https://img.shields.io/npm/l/webaudio-wav-stream-player.svg) ![github-issues](https://img.shields.io/github/issues/revolunet/webaudio-wav-stream-player.svg)
 
