@@ -6,7 +6,7 @@ No latency wav stream player using [fetch streaming API]() and [WebAudio]() (Chr
 
 Example : http://revolunet.github.io/webaudio-wav-stream-player
 
-Based on @chrisguttandin and @revolunet work
+Based on [@chrisguttandin](http://github.com/chrisguttandin) and [@revolunet](http://github.com/revolunet) work
 
 ## Usage
 
